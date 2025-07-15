@@ -1,11 +1,63 @@
 services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+  postgres:
+    restart: unless-stopped
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=dockerSePostgres
+      - POSTGRES_PASSWORD=zenmonk
+      - POSTGRES_DB=arsh
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5431:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: arshdevrajput@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: thisIsSecret
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+
   backend:
     build: ./backend
     ports:
-      - "3001:4000"
-    environment:
-      - PORT=4000
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+    # develop:
+    #   watch:
+    #     - path: "./backend"
+    #       target: "/app"
+    #       action: sync
+    #     - path: "./backend/package.json"
+    #       action: rebuild
+    depends_on:
+      - postgres
+
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    # develop:
+    #   watch:
+    #     - path: "./frontend"
+    #       target: "/app"
+    #       action: sync
+    #     - path: "./frontend/package.json"
+    #       action: rebuild
+    #     - path: "./frontend/next.config.ts"
+    #       action: rebuild
+    depends_on:
+      - postgres
+
+volumes:
+  db:

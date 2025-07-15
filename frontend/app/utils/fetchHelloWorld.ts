@@ -1,6 +1,6 @@
 export const fetchHelloWorld = async () => {
   try {
-    const res = await fetch("http://localhost:3000", {
+    const res = await fetch("http://localhost:3001", {
       method: "get",
       headers: { "Content-Type": "application/json" },
     });
